@@ -6,5 +6,6 @@ urlpatterns = [
 # path("",home, name="home"),
 # path("student/",post_student, name="student"),
 # path("delete/<int:id>/",delete_student, name="update_Student"),
-path("get_book/",get_book)
+path("get_book/",get_book),
+path("register/",RegisterUser.as_view())
 ]

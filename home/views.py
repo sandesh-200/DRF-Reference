@@ -4,6 +4,7 @@ from .models import *
 from .serializers import StudentSerializer,BookSerializer,UserSerializer
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
 # Create your views here.
 
 @api_view(['GET'])
@@ -15,10 +16,25 @@ def get_book(request):
 class RegisterUser(APIView):
     def post(self,request):
         serializer= UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            user = User.objects.get(username = serializer.data['username'])
+            token_obj, _ =Token.objects.get_or_create(user=user)
+            return Response({"status":200,"payload":serializer.data,"message":"Successfully registered","token":str(token_obj)})
+        else:
+            return Response({"status":203,"message":serializer.errors,"message":"registration failed"})
+        return 
+    
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 
 
 class StudentAPI(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(Self,request):
         student_objs = Student.objects.all()
         serializer = StudentSerializer(student_objs,many=True)
